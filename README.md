@@ -68,8 +68,9 @@ block (`"floating": [{ "id": "panel-buttons", "content": { "mod": "panel-buttons
 "edge": "top", "align": "end" }]` on the root).
 
 To get the buttons *inside* the shipped tab bar (exactly the look in the screenshots), clone it
-on your own machine and add one module — `extras/tabbar-buttons.js` carries the two lines it
-needs (`import` + `.child(quickButtons())`); Herdr's own tab bar stays untouched in this repo:
+on your own machine and add one module — `extras/tabbar-buttons.js` carries the three lines it
+needs (`import`, `seedButtons(cx)` in `init`, `.child(quickButtons())` before the window
+buttons); Herdr's own tab bar stays untouched in this repo:
 
 ```sh
 herdr-app do mod.clone --name tabs --as tabs-sai
