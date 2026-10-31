@@ -17,6 +17,11 @@ transcripts, scheduled agents) declare `platforms = ["linux", "macos"]` today, s
 `herdr plugin action invoke` refuses them on Windows. These are herdr-app mods: the same
 JavaScript runs on Windows, macOS and Linux, and there is no platform gate to trip.
 
+**Live in the terminal instead of the app window?** The same three exist as CLI plugins at
+[`nakamotosai/herdr-agent-plugins`](https://github.com/nakamotosai/herdr-agent-plugins)
+(`herdr plugin install nakamotosai/herdr-agent-plugins/<name>`), also pure Node and also
+Windows-capable. Mod and plugin keep separate state, so you can run both.
+
 ## Install
 
 Paste this to your agent (it reads the app's own mod rules and fits the mod to your setup):
