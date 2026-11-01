@@ -174,9 +174,12 @@ export default class TokenUsage extends View {
 
   /** Size and mtime of every session file, in one listing.
    * The runtime's fs has no stat, and reading 1.8 GB to notice a change is no
-   * answer: a directory listing is the cheap pass it needs to be. */
+   * answer: a directory listing is the cheap pass it needs to be. Each platform
+   * gets its own lister: powershell on Windows, GNU find on Linux, and on macOS
+   * `find -exec stat`, since BSD find has no -printf. */
   async listFiles() {
-    if ((window()?.platform ?? "windows") === "windows") {
+    const platform = window()?.platform ?? "windows";
+    if (platform === "windows") {
       const script =
         "$ErrorActionPreference='SilentlyContinue';Get-ChildItem -LiteralPath '" +
         this.root.replace(/'/g, "''") +
@@ -185,6 +188,13 @@ export default class TokenUsage extends View {
       if (r === TOO_SLOW) throw new Error("the store listing took longer than " + LIST_MS + "ms");
       if (r.code !== 0) throw new Error(r.stderr || "powershell could not list the store");
       return this.listed(r.stdout, false);
+    }
+    if (platform === "macos") {
+      // BSD stat spells a tab %t, and %m is the mtime in whole seconds.
+      const r = await this.limited(exec("find", [this.root, "-type", "f", "-name", "*.jsonl", "-exec", "stat", "-f", "%N%t%z%t%m", "{}", "+"]), LIST_MS, null);
+      if (r === TOO_SLOW) throw new Error("the store listing took longer than " + LIST_MS + "ms");
+      if (r.code !== 0) throw new Error(r.stderr || "find could not list the store");
+      return this.listed(r.stdout, true);
     }
     const r = await this.limited(exec("find", [this.root, "-type", "f", "-name", "*.jsonl", "-printf", "%p\t%s\t%T@\n"]), LIST_MS, null);
     if (r === TOO_SLOW) throw new Error("the store listing took longer than " + LIST_MS + "ms");
